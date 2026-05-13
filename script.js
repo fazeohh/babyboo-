@@ -1,4 +1,7 @@
-document.getElementById("year").textContent = new Date().getFullYear();
+const year = document.getElementById("year");
+if (year) {
+  year.textContent = new Date().getFullYear();
+}
 
 const galleryGrid = document.getElementById("gallery-grid");
 const galleryPageButtons = document.querySelectorAll(".gallery-page-button");
@@ -6,7 +9,35 @@ const galleryPageButtons = document.querySelectorAll(".gallery-page-button");
 const imagesPerPage = 16;
 const totalImages = 32;
 
+function createImagePathOptions(i) {
+  return [
+    `assets/gallery/gallery-${i}.jpeg`,
+    `assets/gallery-${i}.jpeg`,
+    `assets/collection-${i}.jpeg`
+  ];
+}
+
+function loadImageWithFallback(i, figure, img) {
+  const paths = createImagePathOptions(i);
+  let pathIndex = 0;
+
+  function tryNextPath() {
+    if (pathIndex >= paths.length) {
+      figure.remove();
+      return;
+    }
+
+    img.src = paths[pathIndex];
+    pathIndex++;
+  }
+
+  img.onerror = tryNextPath;
+  tryNextPath();
+}
+
 function loadGallery(page) {
+  if (!galleryGrid) return;
+
   galleryGrid.innerHTML = "";
 
   const start = (page - 1) * imagesPerPage + 1;
@@ -21,24 +52,20 @@ function loadGallery(page) {
     button.type = "button";
 
     const img = document.createElement("img");
-    img.src = `assets/gallery/gallery-${i}.jpeg`;
     img.alt = `Baby Boo dress ${i}`;
     img.loading = "lazy";
-
-    img.onerror = function () {
-      figure.remove();
-    };
 
     button.appendChild(img);
     figure.appendChild(button);
     galleryGrid.appendChild(figure);
+
+    loadImageWithFallback(i, figure, img);
   }
 }
 
 galleryPageButtons.forEach((button) => {
   button.addEventListener("click", () => {
     galleryPageButtons.forEach((btn) => btn.classList.remove("is-active"));
-
     button.classList.add("is-active");
 
     const page = Number(button.dataset.page);
