@@ -1,5 +1,5 @@
 const galleryGrid = document.getElementById("gallery-grid");
-const totalImages = 114;
+const totalImages = 16;
 
 if (galleryGrid) {
   for (let i = 1; i <= totalImages; i++) {
